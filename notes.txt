@@ -1,0 +1,38 @@
+Profesional
+
+id (PK)
+nombre
+apellido
+especialidad (FK a una tabla de especialidades si hay muchas)
+
+Usuario
+
+id (PK)
+nombre
+apellido
+rut (único)
+email (único)
+teléfono
+
+Disponibilidad
+
+id (PK)
+profesional_id (FK)
+fecha_hora
+estado (valores: "disponible", "ocupado")
+
+Cita
+
+id (PK)
+usuario_id (FK)
+profesional_id (FK)
+fecha_hora_id (FK a Disponibilidad)
+estado (valores: "confirmada", "cancelada", "pendiente")
+
+Relaciones en diagrama:
+
+Profesional → Disponibilidad: Uno a Muchos.
+Usuario → Cita: Uno a Muchos.
+Profesional → Cita: Uno a Muchos.
+Disponibilidad → Cita: Uno a Uno.
+
