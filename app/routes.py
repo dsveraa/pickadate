@@ -79,10 +79,7 @@ def register_routes(app):
                 ids.append(item.id)
                 horas.append(hora_actual.strftime("%d/%m/%Y %H:%M:%S"))
                 estados.append(item.estado)
-
-        # horas_formateadas = [hora.strftime("%d/%m/%Y %H:%M:%S") for hora in horas]
-        # printn(horas)
-        
+       
         id_hora_estado = []
         for id, hora, estado in zip(ids, horas, estados):
             id_hora_estado.append({'id': id, 'hora': hora, 'estado': estado})
@@ -94,7 +91,7 @@ def register_routes(app):
     @app.route('/hola_mundo')
     def index():
         fecha = datetime.now()
-        fecha_formateada = fecha.strftime("%d/$m/%Y %H:%M:%S")
+        fecha_formateada = fecha.strftime("%d/%m/%Y %H:%M:%S")
         mensaje = 'hola mundo, saapee!'
         return jsonify({'fecha': fecha_formateada, 'mensaje': mensaje}), 200
     
