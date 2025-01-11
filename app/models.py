@@ -28,7 +28,7 @@ class Profesional(db.Model):
     especialidad_id = Column(Integer, ForeignKey('especialidades.id'), nullable=False)
 
     especialidad = relationship("Especialidad", back_populates="profesionales")
-    disponibilidades = relationship("Disponibilidad", back_populates="profesional")
+    horas = relationship("Hora", back_populates="profesional")
     citas = relationship("Cita", back_populates="profesional")
 
 class Usuario(db.Model):
@@ -43,16 +43,16 @@ class Usuario(db.Model):
 
     citas = relationship("Cita", back_populates="usuario")
 
-class Disponibilidad(db.Model):
-    __tablename__ = 'disponibilidades'
+class Hora(db.Model):
+    __tablename__ = 'horas'
 
     id = Column(Integer, primary_key=True)
     profesional_id = Column(Integer, ForeignKey('profesionales.id'), nullable=False)
     fecha_hora = Column(DateTime, nullable=False)
     estado = Column(String(50), default=DisponibilidadEstado.disponible, nullable=False)
 
-    profesional = relationship("Profesional", back_populates="disponibilidades")
-    cita = relationship("Cita", back_populates="disponibilidad", uselist=False)
+    profesional = relationship("Profesional", back_populates="horas")
+    cita = relationship("Cita", back_populates="hora", uselist=False)
 
 class Cita(db.Model):
     __tablename__ = 'citas'
@@ -60,9 +60,9 @@ class Cita(db.Model):
     id = Column(Integer, primary_key=True)
     usuario_id = Column(Integer, ForeignKey('usuarios.id'), nullable=False)
     profesional_id = Column(Integer, ForeignKey('profesionales.id'), nullable=False)
-    fecha_hora_id = Column(Integer, ForeignKey('disponibilidades.id'), nullable=False)
+    fecha_hora_id = Column(Integer, ForeignKey('horas.id'), nullable=False)
     estado = Column(String(50), default=CitaEstado.pendiente, nullable=False)
 
     usuario = relationship("Usuario", back_populates="citas")
     profesional = relationship("Profesional", back_populates="citas")
-    disponibilidad = relationship("Disponibilidad", back_populates="cita")
+    hora = relationship("Hora", back_populates="cita")

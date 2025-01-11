@@ -1,6 +1,6 @@
 from flask import render_template, request, redirect, url_for, jsonify
 from . import db
-from .models import Usuario, Profesional, Cita, Disponibilidad
+from .models import Usuario, Profesional, Cita, Hora
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from colorama import Fore, Style
@@ -31,62 +31,46 @@ def process_datetime(client_timezone, datetime_obj):
     utc_iso_format = client_datetime_utc.isoformat()
     return date_local, utc_iso_format
 
+class ListarHoras:
+    def __init__(self, id, fecha_hora, estado):
+        self.id = id
+        self.fecha_hora = fecha_hora
+        self.estado = estado
+
+    def es_turno(self, turno):
+        if turno == 'mañana':
+            return self.fecha_hora.hour < 12
+        elif turno == 'tarde':
+            return 12 <= self.fecha_hora.hour < 18
+        return True
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'hora': self.fecha_hora.strftime("%d/%m/%Y %H:%M:%S"),
+            'estado': self.estado
+        }
+
 def register_routes(app):
     CORS(app)
 
-    @app.route('/disponibilidad/<profesional_id>') 
-    def disponibilidad(profesional_id):
-        """
-        Obtiene las horas de un profesional, con opción de filtrarlas por turno.
-
-        Args:
-            profesional_id (int): ID del profesional cuyas horas se desean consultar.
-
-        Query Parameters:
-            turno (str, opcional): Turno de las horas a filtrar. Puede ser:
-                - 'mañana': (<id>?turno=mañana) Filtra horas entre las 00:00 y 11:59.
-                - 'tarde': (<id>?turno=tarde) Filtra horas entre las 12:00 y 17:59.
-                - None: No se aplica filtro de turno, se incluyen todas las horas.
-
-        Returns:
-            Response: Objeto JSON con el siguiente formato:
-                {
-                    'horas': [
-                        {'id': int, 'hora': str, 'estado': str},
-                        ...
-                    ]
-                }
-            Código de estado HTTP 200.
-        """
+    @app.route('/disponibilidad/<profesional_id>')
+    def disponibilidad(profesional_id):        
         turno = request.args.get('turno')
-        disponibilidad_obj = Disponibilidad.query.filter_by(profesional_id=profesional_id).all()
-        horas = []
-        ids= []
-        estados = []
-        
-        for item in disponibilidad_obj:
-            hora_actual = item.fecha_hora
-            
-            if turno == 'mañana' and hora_actual.hour < 12:
-                ids.append(item.id)
-                horas.append(hora_actual.strftime("%d/%m/%Y %H:%M:%S"))
-                estados.append(item.estado)
-            elif turno == 'tarde' and 12 <= hora_actual.hour < 18:
-                ids.append(item.id)
-                horas.append(hora_actual.strftime("%d/%m/%Y %H:%M:%S"))
-                estados.append(item.estado)
-            elif turno is None:  
-                ids.append(item.id)
-                horas.append(hora_actual.strftime("%d/%m/%Y %H:%M:%S"))
-                estados.append(item.estado)
-       
-        id_hora_estado = []
-        for id, hora, estado in zip(ids, horas, estados):
-            id_hora_estado.append({'id': id, 'hora': hora, 'estado': estado})
+        disponibilidad_obj = Hora.query.filter_by(profesional_id=profesional_id).all()
 
-        return jsonify({
-            'horas': id_hora_estado
-        }), 200
+        lista_horas = []
+        for item in disponibilidad_obj:
+            hora = ListarHoras(item.id, item.fecha_hora, item.estado)
+            lista_horas.append(hora)
+
+        horas_filtradas = []
+        for hora in lista_horas:
+            if hora.es_turno(turno):
+                horas_filtradas.append(hora.to_dict())
+
+        return jsonify({'horas': horas_filtradas}), 200
+
    
     @app.route('/hola_mundo')
     def index():
