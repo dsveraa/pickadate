@@ -14,7 +14,7 @@ rut (único)
 email (único)
 teléfono
 
-Disponibilidad
+Horas
 
 id (PK)
 profesional_id (FK)
@@ -26,13 +26,20 @@ Cita
 id (PK)
 usuario_id (FK)
 profesional_id (FK)
-fecha_hora_id (FK a Disponibilidad)
+fecha_hora_id (FK a Horas)
 estado (valores: "confirmada", "cancelada", "pendiente")
 
-Relaciones en diagrama:
+---
 
-Profesional → Disponibilidad: Uno a Muchos.
-Usuario → Cita: Uno a Muchos.
-Profesional → Cita: Uno a Muchos.
-Disponibilidad → Cita: Uno a Uno.
+funcionalidades básicas:
 
+solicitar datos del interesardo --> nombre y rut
+
+filtrar por especialidad --> devuelve fecha más próxima con lista de profesionales asociados y sus horas disponibles
+
+agendar cita --> confirmacion de agendamiento. Solicita email y celular. Muestra detalles de la cita, profesional, especialidad, fecha y hora.
+    --> al agendar, muestra detalle de la cita agendada y código de reserva
+        --> envía un email con estos mismos datos
+
+anular cita --> solicita rut del interesado y código de reserva
+    --> muestra detalle de la cita y confirmación para anular la reserva
